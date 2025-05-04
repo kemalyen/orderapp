@@ -1,0 +1,10 @@
+/** custom styles for the application **/
+ 
+.fi-logo { 
+    margin-right: 2rem;
+    margin-left: 2rem;
+}
+
+.fi-topbar ul {
+    margin-left: 10rem;
+}
