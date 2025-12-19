@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        Product::factory(10)->create();
+        Product::factory(100)->create();
 
         Role::create(['name' => 'Account Admin']);
         Role::create(['name' => 'Account Api User']);
