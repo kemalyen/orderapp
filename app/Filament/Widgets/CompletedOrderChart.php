@@ -11,7 +11,7 @@ use Illuminate\Support\Carbon;
 
 class CompletedOrderChart extends ChartWidget
 {
-    protected static ?string $heading = 'Completed Orders';
+    protected ?string $heading = 'Orders';
     protected static ?int $sort = 5;
 
     protected function getData(): array
@@ -27,7 +27,7 @@ class CompletedOrderChart extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'Daily Completed Orders',
+                    'label' => 'Daily Orders',
                     'data' => $data->map(fn (TrendValue $value) => $value->aggregate),
                 ],
             ],

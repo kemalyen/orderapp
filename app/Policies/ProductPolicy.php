@@ -21,7 +21,7 @@ class ProductPolicy
      */
     public function viewAny(User $user): Response
     {
-        return ($user->hasRole('Portal Admin') || $user->hasRole('Portal User'))
+        return ($user->hasRole('Portal Admin') || $user->hasRole('Portal User') || $user->hasRole('Account Admin') || $user->hasRole('Account Api User'))
             ? Response::allow()
             : Response::deny('You do not have access to view this resource.');
     }
@@ -31,7 +31,7 @@ class ProductPolicy
      */
     public function view(User $user, Product $product): Response
     {
-        return ($user->hasRole('Portal Admin') || $user->hasRole('Portal User'))
+        return ($user->hasRole('Portal Admin') || $user->hasRole('Portal User') || $user->hasRole('Account Admin') || $user->hasRole('Account Api User'))
             ? Response::allow()
             : Response::deny('You do not have access to view this resource.');
     }

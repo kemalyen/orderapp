@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Filters\OrderFilter;
 use App\Http\Requests\StoreOrderRequest;
-use App\Http\Requests\UpdateOrderRequest;
 use App\Http\Resources\OrderResource;
 use App\Models\Order;
 use App\Models\OrderLine;
@@ -27,8 +26,14 @@ class OrderController extends ApiController
      */
     public function index(OrderFilter $orderFilter)
     {
+        $user = auth()->user();
+        if ($user->hasRole('Account Api User')) {
+            $orders = Order::where('account_id', $user->account_id);
+        } else {
+            $orders = Order::query();
+        }
         return OrderResource::collection(
-            Order::filter($orderFilter)->orderBy('created_at', 'DESC')->paginate()
+            $orders->filter($orderFilter)->orderBy('created_at', 'DESC')->paginate()
         );
     }
     /**

@@ -11,7 +11,7 @@ use Illuminate\Support\Carbon;
 
 class ProcessingOrderChart extends ChartWidget
 {
-    protected static ?string $heading = 'Processing Orders';
+    protected ?string $heading = 'Processing Orders';
     protected static ?int $sort = 3;
     protected function getData(): array
     {

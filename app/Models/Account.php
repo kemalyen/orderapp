@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use Database\Factories\AccountFactory;
 use App\Enums\AccountStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Account extends Model
 {
-    /** @use HasFactory<\Database\Factories\AccountFactory> */
+    /** @use HasFactory<AccountFactory> */
     use HasFactory;
 
     protected $fillable = ['name', 'account_number', 'status'];

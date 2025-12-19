@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Http\Filters\QueryFilter;
+use Illuminate\Database\Eloquent\Builder;
 
 class Product extends Model
 {
-    /** @use HasFactory<\Database\Factories\ProductFactory> */
+    /** @use HasFactory<ProductFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -26,4 +29,20 @@ class Product extends Model
     protected $attributes = [
         'stock' => 0,
     ];
+
+    public function scopeFilter(Builder $builder, QueryFilter $filters)
+    {
+        return $filters->apply($builder);
+    }
+
+
+    public function getRouteKey()
+    {
+        return $this->sku;
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'sku';
+    }
 }

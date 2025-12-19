@@ -11,7 +11,7 @@ use Illuminate\Support\Carbon;
 
 class PendingOrderChart extends ChartWidget
 {
-    protected static ?string $heading = 'Pending Orders';
+    protected ?string $heading = 'Pending Orders';
     protected static ?int $sort = 2;
     protected function getData(): array
     {

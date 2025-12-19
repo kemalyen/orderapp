@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         Product::factory(10)->create();
-        
+
         Role::create(['name' => 'Account Admin']);
         Role::create(['name' => 'Account Api User']);
         Role::create(['name' => 'Portal User']);
@@ -33,8 +33,8 @@ class DatabaseSeeder extends Seeder
                 $account->users->each(function ($user) {
                     $user->assignRole('Account Admin');
                 });
-            }); 
- 
+            });
+
         User::factory(3)
             ->recycle($accounts)
             ->create()
@@ -43,18 +43,14 @@ class DatabaseSeeder extends Seeder
             });
 
 
-        User::factory()
-            ->recycle($accounts)
-            ->create([
-                'name' => 'Test User',
-                'email' => 'apiuser@example.com',
-            ])
-            ->assignRole('Account Api User');
- 
+        User::factory()->create([
+            'name' => 'Portal Admin',
+            'email' => 'portaladmin@example.com',
+        ])->assignRole('Portal Admin');
 
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ])->assignRole('Portal Admin');
+            'name' => 'Portal User',
+            'email' => 'portaluser@example.com',
+        ])->assignRole('Portal User');
     }
 }

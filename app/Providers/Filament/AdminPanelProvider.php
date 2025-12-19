@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use Filament\Pages\Dashboard;
 use App\Filament\Pages\Profile;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -33,11 +34,14 @@ class AdminPanelProvider extends PanelProvider
             ->brandName('Corvus App')
             ->colors([
                 'primary' => Color::Neutral,
+                'tertiary' => Color::Gray,
+                'gray' => '#374151',
+
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
-                Pages\Dashboard::class,
+                Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
@@ -58,7 +62,7 @@ class AdminPanelProvider extends PanelProvider
             ->userMenuItems([
                 MenuItem::make()
                     ->label('Profile')
-                    ->url(fn (): string => Profile::getUrl())
+                    ->url(fn(): string => Profile::getUrl())
                     ->icon('heroicon-o-user'),
             ])
             ->authMiddleware([

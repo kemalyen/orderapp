@@ -1,9 +1,8 @@
 <x-filament-panels::page>
-    <x-filament-panels::form wire:submit="update">
+
+    <form wire:submit="update" id="form" class="grid gap-y-6">
         {{ $this->form }}
- 
-        <x-filament-panels::form.actions
-                :actions="$this->getFormActions()"
-        />
-    </x-filament-panels::form>
+
+        <x-filament::actions :actions="$this->getFormActions()"  class="mt-4" />
+    </form>
 </x-filament-panels::page>
