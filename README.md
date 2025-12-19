@@ -1,6 +1,12 @@
 # Order App
 Order App is a simple application designed to manage and track account orders efficiently. It provides an intuitive interface for users to create, view, and update orders.
 
+## API Documentation
+The Account Admin can create API user. Account admin must create API Token to connect to the API.
+
+Doc url: [https://documenter.getpostman.com/view/15974/2sB3dWqS2g](https://documenter.getpostman.com/view/15974/2sB3dWqS2g)
+
+
 ## Features
 - Create new orders
 - View order details
