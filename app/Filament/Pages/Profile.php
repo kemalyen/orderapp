@@ -2,17 +2,18 @@
 
 namespace App\Filament\Pages;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Actions\Action;
 use App\Enums\AccountStatus;
 use Filament\Pages\Page;
 use App\Filament\Resources\LessonResource;
 use App\Models\Profile as UserProfile;
 use App\Models\User;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
 use Filament\Infolists\Components\Grid;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Concerns\InteractsWithInfolists;
@@ -34,9 +35,9 @@ class Profile extends Page implements HasForms, HasInfolists
 
     protected static ?int $navigationSort = 6;
 
-    protected static ?string $navigationIcon = 'elemplus-setting';
+    protected static string | \BackedEnum | null $navigationIcon = 'elemplus-setting';
 
-    protected static string $view = 'filament.pages.profile';
+    protected string $view = 'filament.pages.profile';
 
     public static function shouldRegisterNavigation(): bool
     {
@@ -57,12 +58,12 @@ class Profile extends Page implements HasForms, HasInfolists
     }
 
     /**
-     * @return Form
+     * @return Schema
      */
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
 
                 Section::make('Contact')->schema([
                     TextInput::make('email')
@@ -98,7 +99,7 @@ class Profile extends Page implements HasForms, HasInfolists
     protected function getFormActions(): array
     {
         return [
-            Actions\Action::make('Update')
+            Action::make('Update')
                 ->color('primary')
                 ->submit('Update'),
         ];
@@ -107,7 +108,15 @@ class Profile extends Page implements HasForms, HasInfolists
     public function update()
     {
         $data = $this->form->getState();
-        $user =   auth()->user();
+
+        // Remove password fields if they're empty
+        if (!empty($data['password'])) {
+            $data['password'] = bcrypt($data['password']);
+        } else {
+            unset($data['password']);
+            unset($data['password_confirmation']);
+        }
+        $user =  auth()->user();
         $user->update(
             $data
         );

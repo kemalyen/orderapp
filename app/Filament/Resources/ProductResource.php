@@ -2,12 +2,21 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\EditAction;
+use Filament\Actions\BulkActionGroup;
+use App\Filament\Resources\ProductResource\Pages\ListProducts;
+use App\Filament\Resources\ProductResource\Pages\CreateProduct;
+use App\Filament\Resources\ProductResource\Pages\EditProduct;
 use App\Filament\Resources\ProductResource\Pages;
 use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\Product;
 use Filament\Forms;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -18,49 +27,44 @@ class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
-    protected static ?string $navigationIcon = 'far-list-alt';
+    protected static string | \BackedEnum | null $navigationIcon = 'far-list-alt';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make('Product Details')
                     ->description('Fill in the product details below.')
-                    ->columns(2)->schema([
-                        Forms\Components\TextInput::make('name')
+                    ->schema([
+                        TextInput::make('name')
                             ->required()->columnSpanFull(),
-                        Forms\Components\Textarea::make('description')
+                        Textarea::make('description')
                             ->required()
                             ->columnSpanFull(),
 
-                        Forms\Components\TextInput::make('price')
+                        TextInput::make('price')
                             ->required()
                             ->numeric()
                             ->prefix('$'),
 
-                        Forms\Components\TextInput::make('stock')
+                        TextInput::make('stock')
                             ->required()
                             ->numeric(),
 
-
-                        Forms\Components\TextInput::make('sku')
+                        TextInput::make('sku')
                             ->label('SKU')
                             ->unique(Product::class, 'sku', fn($record) => $record)
                             ->required(),
-                        Forms\Components\TextInput::make('barcode')
+                        TextInput::make('barcode')
                             ->label('Barcode')
                             ->unique(Product::class, 'barcode', fn($record) => $record)
                             ->required(),
 
 
-                        Forms\Components\FileUpload::make('image')
+                        FileUpload::make('image')
                             ->image()
                             ->columnSpanFull(),
-                    ]),
-
-
-
-
+                    ]), 
             ]);
     }
 
@@ -68,32 +72,30 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('price')
-                    ->money() ,
-                 
-                Tables\Columns\TextColumn::make('stock')
-                    ->numeric()
-                    ,
-                Tables\Columns\TextColumn::make('sku')
+                TextColumn::make('price')
+                    ->money(),
+
+                TextColumn::make('stock')
+                    ->numeric(),
+                TextColumn::make('sku')
                     ->label('SKU')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('barcode')
-                   ,
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('barcode'),
+                TextColumn::make('created_at')
                     ->dateTime()
-                     
+
             ])
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                   // Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -108,9 +110,9 @@ class ProductResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListProducts::route('/'),
-            'create' => Pages\CreateProduct::route('/create'),
-            'edit' => Pages\EditProduct::route('/{record}/edit'),
+            'index' => ListProducts::route('/'),
+            'create' => CreateProduct::route('/create'),
+            'edit' => EditProduct::route('/{record}/edit'),
         ];
     }
 }

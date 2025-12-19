@@ -2,15 +2,25 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\EditAction;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use App\Filament\Resources\UserResource\Pages\ListUsers;
+use App\Filament\Resources\UserResource\Pages\CreateUser;
+use App\Filament\Resources\UserResource\Pages\EditUser;
+use App\Filament\Resources\UserResource\Pages\GenerateApiToken;
 use App\Enums\AccountStatus;
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
+use App\Filament\Resources\UserResource\Schemas\UserForm;
 use App\Models\User;
 use Filament\Forms;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Filters\SelectFilter;
@@ -23,61 +33,11 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'uni-users-alt-o';
+    protected static string | \BackedEnum | null $navigationIcon = 'uni-users-alt-o';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-
-            ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required(),
-                Forms\Components\TextInput::make('email')
-                    ->email()
-                    ->required(),
-                Section::make()->schema([
-
-                    Select::make('roles')->relationship(
-                        'roles',
-                        'name'
-                    )
-                        ->required()
-                        ->options(function () {
-         
-                            $roles = Role::all()->pluck('name', 'id');
-
-                            if (auth()->user()->hasRole('Portal Admin')) {
-                                return $roles;
-                            }
-
-                            $roles = $roles->filter(function ($role) {
-                                return !in_array($role, ['Portal Admin', 'Portal User']);
-                            });
-
-                            return $roles->toArray();
-                        }),
-
-                    Select::make('account_id')
-                        ->label('Account')
-                        ->relationship('account', 'name')
-                        ->required()
-                        ->default(auth()->user()->account_id)
-                        ->disabled(fn($record) => !auth()->user()->hasRole('Portal Admin'))
-
-                ])->columns(2),
-
-
-
-                Section::make()->schema([
-                    TextInput::make('password')
-                        ->password()
-                        ->revealable(),
-
-                    TextInput::make('password_confirmation')
-                        ->password()
-                        ->autocomplete('password')->same('password'),
-                ])->columns(2),
-            ]);
+        return UserForm::configure($schema);
     }
 
     public static function table(Table $table): Table
@@ -94,13 +54,13 @@ class UserResource extends Resource
             ->query($query)
             ->defaultSort('created_at', 'desc')
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('email')
+                TextColumn::make('email')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('account_name')->label('Account Name'),
-                Tables\Columns\TextColumn::make('roles.name'),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('account_name')->label('Account Name'),
+                TextColumn::make('roles.name'),
+                TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
             ])
@@ -115,9 +75,9 @@ class UserResource extends Resource
                     ->relationship('roles', 'name')
                     ->getOptionLabelFromRecordUsing(fn($record) => $record->name)
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\Action::make('Generate API Token')
+            ->recordActions([
+                EditAction::make(),
+                Action::make('Generate API Token')
                     ->disabled(fn(User $record): bool => !$record->hasRole('Account Api User'))
                     ->hiddenLabel()
                     ->icon('heroicon-o-key')
@@ -125,9 +85,9 @@ class UserResource extends Resource
                     ->tooltip('Generate API Token')
                     ->url(fn(User $record): string => route('filament.admin.resources.users.generate-token', $record)),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -142,10 +102,10 @@ class UserResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListUsers::route('/'),
-            'create' => Pages\CreateUser::route('/create'),
-            'edit' => Pages\EditUser::route('/{record}/edit'),
-            'generate-token' => Pages\GenerateApiToken::route('/{record}/token/generate'),
+            'index' => ListUsers::route('/'),
+            'create' => CreateUser::route('/create'),
+            'edit' => EditUser::route('/{record}/edit'),
+            'generate-token' => GenerateApiToken::route('/{record}/token/generate'),
         ];
     }
 }

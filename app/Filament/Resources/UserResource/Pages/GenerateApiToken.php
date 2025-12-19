@@ -2,12 +2,11 @@
 
 namespace App\Filament\Resources\UserResource\Pages;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
 use App\Filament\Resources\UserResource;
-
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\EditRecord;
-use Filament\Forms\Form;
 use Filament\Actions\Action;
 
 class GenerateApiToken extends EditRecord
@@ -15,13 +14,13 @@ class GenerateApiToken extends EditRecord
     protected static string $resource = UserResource::class;
 
     protected static ?string $title = 'Generate API Token';
-    protected static ?string $navigationIcon = 'heroicon-o-key';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-key';
     protected static ?string $breadcrumb = 'Generate API Token';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make('Generate API Token')
                     ->description('This will delete all existing tokens and generate a new one.')
                     ->columns(1)
@@ -41,6 +40,7 @@ class GenerateApiToken extends EditRecord
     public function generateToken(): void
     {
         $user = $this->record;
+
         $user->tokens()->delete();
         $token = $user->createToken($this->form->getState()['token_name'], ['order:create', 'order:read', 'order:update', 'order:delete']);
         $plainTextToken = $token->plainTextToken;

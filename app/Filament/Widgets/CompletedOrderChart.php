@@ -11,7 +11,7 @@ use Illuminate\Support\Carbon;
 
 class CompletedOrderChart extends ChartWidget
 {
-    protected static ?string $heading = 'Completed Orders';
+    protected ?string $heading = 'Completed Orders';
     protected static ?int $sort = 5;
 
     protected function getData(): array

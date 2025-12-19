@@ -2,31 +2,42 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use App\Models\Product;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use App\Filament\Resources\OrderResource\Pages\ListOrders;
+use App\Filament\Resources\OrderResource\Pages\CreateOrder;
+use App\Filament\Resources\OrderResource\Pages\EditOrder;
+use App\Filament\Resources\OrderResource\Pages\ViewOrder;
+use App\Filament\Resources\OrderResource\Pages\OrderAudit;
 use App\Enums\OrderStatus;
 use App\Filament\Resources\OrderResource\Pages;
 use App\Filament\Resources\OrderResource\RelationManagers;
 use App\Models\Order;
 use App\Rules\ValidateOrderStatus;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Infolists;
 use Filament\Infolists\Components\Fieldset;
-use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\RepeatableEntry;
-use Filament\Infolists\Components\Section as InfoSection;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Support\Facades\Log;
 use Closure;
@@ -37,23 +48,23 @@ class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make('Order Details')
                     ->description('Fill in the order details below.')
                     ->columns(2)->schema([
-                        Forms\Components\TextInput::make('order_number')
+                        TextInput::make('order_number')
                             ->unique(Order::class, 'order_number', fn($record) => $record)
                             ->required(),
                         Select::make('account_id')
                             ->label('Account')
                             ->relationship('account', 'name')
                             ->required(),
-                        Forms\Components\Select::make('status')
+                        Select::make('status')
                             ->options(OrderStatus::class)
                             ->getOptionLabelFromRecordUsing(fn($record) => $record->label())
                             ->label('Order Status')
@@ -64,7 +75,7 @@ class OrderResource extends Resource
                             ])
                             ->required(),
 
-                        Forms\Components\DateTimePicker::make('ordered_at')
+                        DateTimePicker::make('ordered_at')
                             ->label('Ordered At')
                             ->default(now())
 
@@ -76,21 +87,21 @@ class OrderResource extends Resource
 
                             ->hiddenLabel()
                             ->schema([
-                                Forms\Components\Select::make('sku')
+                                Select::make('sku')
                                     ->label('Product SKU')
                                     ->relationship('product', 'sku')
                                     ->searchable(['sku', 'name'])
                                     ->getOptionLabelFromRecordUsing(fn(Model $record) => "{$record->sku} {$record->name}")
                                     ->live()
                                     ->afterStateUpdated(function (Get $get, Set $set, ?string $old, ?string $state) {
-                                        $product = \App\Models\Product::where('sku', $state)->first();
+                                        $product = Product::where('sku', $state)->first();
                                         if ($product) {
                                             $set('product_title', $product->name);
                                             $set('price', $product->price);
                                         }
                                     })->disabledOn('edit')
                                     ->required(),
-                                Forms\Components\TextInput::make('quantity')
+                                TextInput::make('quantity')
                                     ->required()
                                     ->numeric()
                                     ->default(1)
@@ -98,7 +109,7 @@ class OrderResource extends Resource
                                     ->rules([
                                         fn(Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
                                             $sku = $get('sku');
-                                            $product = \App\Models\Product::where('sku', $sku)->first();
+                                            $product = Product::where('sku', $sku)->first();
                                             if ($value > $product->stock) {
                                                 $fail("The quantity exceeds the available stock of {$product->stock}.");
                                             }
@@ -106,12 +117,12 @@ class OrderResource extends Resource
                                     ])
                                     ->label('Quantity'),
 
-                                Forms\Components\TextInput::make('price')
+                                TextInput::make('price')
                                     ->required()
                                     ->rules([
                                         fn(Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
                                             $sku = $get('sku');
-                                            $product = \App\Models\Product::where('sku', $sku)->first();
+                                            $product = Product::where('sku', $sku)->first();
                                             if ($value < $product->price) {
                                                 $fail("The price is less than the product price of {$product->price}.");
                                             }
@@ -135,21 +146,21 @@ class OrderResource extends Resource
             }))
             ->defaultSort('created_at', 'desc')
             ->columns([
-                Tables\Columns\TextColumn::make('account_name')
+                TextColumn::make('account_name')
                     ->label('Account Name')
                     ->hidden(fn(): bool => !auth()->user()->hasRole('Portal Admin') || !auth()->user()->hasRole('Portal User'))
                     ->sortable(),
-                Tables\Columns\TextColumn::make('order_number')
+                TextColumn::make('order_number')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('order_amount')
+                TextColumn::make('order_amount')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('status')
+                TextColumn::make('status')
                     ->badge(),
-                Tables\Columns\TextColumn::make('ordered_at')
+                TextColumn::make('ordered_at')
                     ->dateTime()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->dateTime(),
             ])
             ->filters([
@@ -164,10 +175,10 @@ class OrderResource extends Resource
                     ->getOptionLabelFromRecordUsing(fn($record) => $record->name)
                     ->hidden(fn(): bool => !auth()->user()->hasRole('Portal Admin') || !auth()->user()->hasRole('Portal User'))
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\Action::make('order-audit')
+            ->recordActions([
+                EditAction::make(),
+                ViewAction::make(),
+                Action::make('order-audit')
                     ->icon('heroicon-o-eye')
                     ->tooltip('View Audit Logs')
                     ->color('secondary')
@@ -176,37 +187,37 @@ class OrderResource extends Resource
                     ->hidden(fn(): bool => !auth()->user()->hasRole('Portal Admin'))
 
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
 
 
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
-        return $infolist
-            ->schema([
+        return $schema
+            ->components([
 
-                InfoSection::make('Order Details')
+                Section::make('Order Details')
 
                     ->schema([
 
-                        Infolists\Components\TextEntry::make('order_number'),
-                        Infolists\Components\TextEntry::make('account_name')
+                        TextEntry::make('order_number'),
+                        TextEntry::make('account_name')
                             ->label('Account Name'),
-                        Infolists\Components\TextEntry::make('status')->badge(),
-                        Infolists\Components\TextEntry::make('order_amount')
+                        TextEntry::make('status')->badge(),
+                        TextEntry::make('order_amount')
                             ->label('Total Amount'),
-                        Infolists\Components\TextEntry::make('ordered_at')
+                        TextEntry::make('ordered_at')
                             ->label('Ordered At')
                             ->dateTime(),
-                        Infolists\Components\TextEntry::make('created_at')
+                        TextEntry::make('created_at')
                             ->label('Created At')
                             ->dateTime(),
-                        Infolists\Components\TextEntry::make('updated_at')
+                        TextEntry::make('updated_at')
                             ->label('Updated At')
                             ->dateTime(),
 
@@ -242,11 +253,11 @@ class OrderResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListOrders::route('/'),
-            'create' => Pages\CreateOrder::route('/create'),
-            'edit' => Pages\EditOrder::route('/{record}/edit'),
-            'view' => Pages\ViewOrder::route('/{record}'),
-            'order-audit' => Pages\OrderAudit::route('/{record}/audit-logs'),
+            'index' => ListOrders::route('/'),
+            'create' => CreateOrder::route('/create'),
+            'edit' => EditOrder::route('/{record}/edit'),
+            'view' => ViewOrder::route('/{record}'),
+            'order-audit' => OrderAudit::route('/{record}/audit-logs'),
         ];
     }
 }

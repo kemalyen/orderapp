@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\OrderResource\Pages;
 
+use Filament\Actions\Action;
 use App\Filament\Resources\OrderResource;
 use App\Models\Order;
 use App\Models\OrderLine;
@@ -9,7 +10,6 @@ use Filament\Tables\Columns\Column;
 use Filament\Resources\Pages\Page;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Tables\Concerns\InteractsWithTable;
-use Filament\Tables\Actions\Action;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Livewire\Component;
@@ -26,7 +26,7 @@ class OrderAudit extends Page implements HasTable
     protected static string $resource = OrderResource::class;
 
 
-    protected static string $view = 'filament.resources.order-resource.pages.order-audit';
+    protected string $view = 'filament.resources.order-resource.pages.order-audit';
 
     public function mount(int | string $record): void
     {
@@ -78,7 +78,7 @@ class OrderAudit extends Page implements HasTable
             ->filters([
                 // ...
             ])
-            ->actions([
+            ->recordActions([
                 Action::make('detail')
                     ->modal()
                     ->label('Detail')
@@ -103,7 +103,7 @@ class OrderAudit extends Page implements HasTable
                     ->icon('heroicon-o-eye')
                     ->color('primary')
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 // ...
             ]);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\OrderLineFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -12,7 +13,7 @@ use OwenIt\Auditing\Contracts\Audit;
 class OrderLine extends Model implements Auditable
 {
     use \OwenIt\Auditing\Auditable;
-    /** @use HasFactory<\Database\Factories\OrderLineFactory> */
+    /** @use HasFactory<OrderLineFactory> */
     use HasFactory;
 
     protected $fillable = [

@@ -2,14 +2,23 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Select;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\EditAction;
+use Filament\Actions\BulkActionGroup;
+use App\Filament\Resources\AccountResource\Pages\ListAccounts;
+use App\Filament\Resources\AccountResource\Pages\CreateAccount;
+use App\Filament\Resources\AccountResource\Pages\EditAccount;
+use App\Filament\Resources\AccountResource\Pages\ViewAccount;
 use App\Enums\AccountStatus;
 use App\Filament\Resources\AccountResource\Pages;
 use App\Models\Account;
 use App\Models\User;
 use Filament\Actions\ViewAction;
 use Filament\Forms;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -17,8 +26,6 @@ use Filament\Tables\Table;
 use Filament\Infolists;
 use Filament\Infolists\Components\Actions\Action;
 use Filament\Infolists\Components\RepeatableEntry;
-use Filament\Infolists\Infolist;
-use Filament\Infolists\Components\Section as InfoSection;
 use Filament\Infolists\Components\TextEntry; 
 
 class AccountResource extends Resource
@@ -27,23 +34,23 @@ class AccountResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
-    protected static ?string $navigationIcon = 'gmdi-account-balance';
+    protected static string | \BackedEnum | null $navigationIcon = 'gmdi-account-balance';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
 
                 Section::make('Account Details')
                     ->description('Fill in the account details below.')
                     ->columns(1)->schema([
-                        Forms\Components\TextInput::make('name')
+                        TextInput::make('name')
                             ->required(),
-                        Forms\Components\TextInput::make('account_number')
+                        TextInput::make('account_number')
                             ->label('Account Number')
                             ->unique(Account::class, 'account_number', fn($record) => $record)
                             ->required(),
-                        Forms\Components\Select::make('status')
+                        Select::make('status')
                             ->options(AccountStatus::class)
                             ->getOptionLabelFromRecordUsing(fn($record) => $record->label())
                             ->label('Account Status'),
@@ -51,12 +58,12 @@ class AccountResource extends Resource
             ]);
     }
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
-        return $infolist
-            ->schema([
+        return $schema
+            ->components([
 
-                InfoSection::make('Account Details')
+                Section::make('Account Details')
 
                     ->schema([
 
@@ -84,13 +91,13 @@ class AccountResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('account_number')
+                TextColumn::make('account_number')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('status')
+                TextColumn::make('status')
                     ->badge(),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->label('Created At'),
@@ -98,12 +105,12 @@ class AccountResource extends Resource
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\ViewAction::make(),
+            ->recordActions([
+                EditAction::make(),
+                ViewAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
+            ->toolbarActions([
+                BulkActionGroup::make([
                     //Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
@@ -119,10 +126,10 @@ class AccountResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListAccounts::route('/'),
-            'create' => Pages\CreateAccount::route('/create'),
-            'edit' => Pages\EditAccount::route('/{record}/edit'),
-            'view' => Pages\ViewAccount::route('/{record}'),
+            'index' => ListAccounts::route('/'),
+            'create' => CreateAccount::route('/create'),
+            'edit' => EditAccount::route('/{record}/edit'),
+            'view' => ViewAccount::route('/{record}'),
         ];
     }
 }

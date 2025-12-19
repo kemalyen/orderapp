@@ -10,7 +10,7 @@ use Illuminate\Support\Carbon;
 
 class DailyOrderChart extends ChartWidget
 {
-    protected static ?string $heading = 'Daily Orders received in Last 30 days';
+    protected ?string $heading = 'Daily Orders received in Last 30 days';
     protected static ?int $sort = 1;
      
 
