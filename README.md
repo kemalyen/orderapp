@@ -18,7 +18,7 @@ Order App is a simple application designed to manage and track account orders ef
 7. **Audit Management**: Provides a comprehensive log of all actions performed within the application, enabling portal admins to monitor activity and ensure compliance with organizational policies.
 
 
-## Avaible Roles
+## Available Roles
 
 **Portal Admin**: Highest level of the portal management role
 
@@ -26,7 +26,45 @@ Order App is a simple application designed to manage and track account orders ef
 
 **Account Admin**: Can list the account users, can generate API user and track the orders
 
+**Account User**: Can list and view the orders
+
 **Account API User**: This is a vertual user, can be used only in API access.
+
+## API Endpoints
+
+Account API User is granted to access the users.  
+
+* list all orders - API User
+
+    ```
+    {{url}}/api/orders
+    ```
+
+* create an order
+
+    ```
+    {{url}}/api/orders
+    ```
+
+* view an order
+
+    ```
+    {{url}}/api/products/{{order_number}}
+    ```
+
+
+* list all products
+
+    ```
+    {{url}}/api/products
+    ```
+
+* view a product
+
+    ```
+    {{url}}/api/products/{{SKU}}
+    ```
+
 
 
 ## Installation
