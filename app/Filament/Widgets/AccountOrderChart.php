@@ -2,21 +2,23 @@
 
 namespace App\Filament\Widgets;
 
-use App\Enums\OrderStatus;
 use App\Models\Order;
 use Filament\Widgets\ChartWidget;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
 use Illuminate\Support\Carbon;
 
-class CompletedOrderChart extends ChartWidget
+class AccountOrderChart extends ChartWidget
 {
-    protected ?string $heading = 'Orders';
-    protected static ?int $sort = 5;
+    protected ?string $heading = 'Daily Orders received in Last 30 days';
+    protected static ?int $sort = 1;
+    
+     
 
     protected function getData(): array
     {
-        $data = Trend::query(Order::where('status', OrderStatus::COMPLETED->value))
+        $user = auth()->user();
+        $data = Trend::query(Order::query()->where('account_id', $user->account_id))
             ->between(
                 start: Carbon::now()->subDays(30),
                 end: Carbon::now(),
@@ -42,7 +44,7 @@ class CompletedOrderChart extends ChartWidget
 
     public static function canView(): bool
     { 
-        return auth()->user()->hasRole('Portal Admin') || auth()->user()->hasRole('Portal User')
+        return auth()->user()->hasRole('Account Admin') || auth()->user()->hasRole('Account User')
             ? true
             : false;
     }

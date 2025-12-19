@@ -9,14 +9,15 @@ use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
 use Illuminate\Support\Carbon;
 
-class CompletedOrderChart extends ChartWidget
+class AccountCompletedOrderChart extends ChartWidget
 {
-    protected ?string $heading = 'Orders';
-    protected static ?int $sort = 5;
+    protected ?string $heading = 'Processed Orders';
+    protected static ?int $sort = 2;
 
     protected function getData(): array
     {
-        $data = Trend::query(Order::where('status', OrderStatus::COMPLETED->value))
+        $user = auth()->user();
+        $data = Trend::query(Order::where('status', OrderStatus::COMPLETED->value)->where('account_id', $user->account_id))
             ->between(
                 start: Carbon::now()->subDays(30),
                 end: Carbon::now(),
@@ -28,10 +29,10 @@ class CompletedOrderChart extends ChartWidget
             'datasets' => [
                 [
                     'label' => 'Daily Orders',
-                    'data' => $data->map(fn (TrendValue $value) => $value->aggregate),
+                    'data' => $data->map(fn(TrendValue $value) => $value->aggregate),
                 ],
             ],
-            'labels' => $data->map(fn (TrendValue $value) => $value->date),
+            'labels' => $data->map(fn(TrendValue $value) => $value->date),
         ];
     }
 
@@ -41,8 +42,8 @@ class CompletedOrderChart extends ChartWidget
     }
 
     public static function canView(): bool
-    { 
-        return auth()->user()->hasRole('Portal Admin') || auth()->user()->hasRole('Portal User')
+    {
+        return auth()->user()->hasRole('Account Admin') || auth()->user()->hasRole('Account User')
             ? true
             : false;
     }

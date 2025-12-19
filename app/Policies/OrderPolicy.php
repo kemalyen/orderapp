@@ -24,7 +24,7 @@ class OrderPolicy
      */
     public function viewAny(User $user): Response
     {
-        return ($user->hasRole('Portal Admin') || $user->hasRole('Portal User') || $user->hasRole('Account Admin')  )
+        return ($user->hasRole('Portal Admin') || $user->hasRole('Portal User') || $user->hasRole('Account Admin') || $user->hasRole('Account Api User'))
             ? Response::allow()
             : Response::deny('You do not have access to view this resource.');
     }
@@ -34,7 +34,7 @@ class OrderPolicy
      */
     public function view(User $user, Order $order): Response
     {
-        return ($user->hasRole('Portal Admin') || $user->hasRole('Portal User')  || ($user->hasRole('Account Admin') && $user->account_id === $order->account_id))
+        return ($user->hasRole('Portal Admin') || $user->hasRole('Portal User')  || (($user->hasRole('Account Admin') || $user->hasRole('Account Api User')) && $user->account_id === $order->account_id))
             ? Response::allow()
             : Response::deny('You do not have access to view this order.');
     }
@@ -54,7 +54,7 @@ class OrderPolicy
      */
     public function update(User $user, Order $order): Response
     {
-        return ($user->hasRole('Portal Admin') || $user->hasRole('Portal User') || ($user->hasRole('Account Api User') && $user->account_id === $order->account_id))
+        return ($user->hasRole('Portal Admin') || $user->hasRole('Portal User'))
             ? Response::allow()
             : Response::deny('You do not have access to update this account.');
     }
