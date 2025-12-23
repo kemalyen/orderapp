@@ -2,7 +2,24 @@
 
 
 # Order App
-Order App is a simple application designed to manage and track account orders efficiently. It provides an intuitive interface for users to create, view, and update orders.
+This Order Management Application is a robust platform designed to streamline the lifecycle of an order through hierarchical role-based access and automated validation.
+
+Key Features:
+Hierarchical Role Management: The system distinguishes between internal operations and customer-side management:
+
+* Portal Admin: Full system oversight and management.
+
+* Portal User: Dedicated to managing orders and customer relationships.
+
+* Account Admin: A client-side role allowing customers to manage their own users and monitor orders.
+
+* Account API User: Specialized for programmatic access, enabling customer companies to integrate via API.
+
+## Automated API Integration: 
+Customers can create orders programmatically by submitting payloads containing product SKUs, quantities, and pricing.
+
+## Smart Validation Workflow: 
+To ensure data integrity, the system performs automated stock and price verification. Once these checks pass, a Portal User performs the final manual validation to move the order forward.
 
 ## API Documentation
 The Account Admin can create API user. Account admin must create API Token to connect to the API.
